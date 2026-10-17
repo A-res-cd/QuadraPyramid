@@ -1,0 +1,63 @@
+name: Deploy prototype to GitHub Pages
+
+on:
+  push:
+    branches: [prototype]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download repository files
+        uses: actions/checkout@v6
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Read GitHub Pages settings
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build published game
+        run: >
+          dotnet publish
+          QuadraPyramidPrototype/QuadraPyramidPrototype.csproj
+          --configuration Release
+          --output publish
+
+      - name: Prepare published files
+        shell: pwsh
+        env:
+          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: |
+          $file = "publish/wwwroot/index.html"
+          $html = [System.IO.File]::ReadAllText($file)
+          $baseTag = '<base href="' + $env:PAGES_BASE_PATH + '/" />'
+          $html = $html.Replace('<base href="/" />', $baseTag)
+          [System.IO.File]::WriteAllText($file, $html)
+          New-Item -ItemType File -Path "publish/wwwroot/.nojekyll" -Force
+
+      - name: Upload website files
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: publish/wwwroot
+
+      - name: Publish website
+        id: deployment
+        uses: actions/deploy-pages@v4
