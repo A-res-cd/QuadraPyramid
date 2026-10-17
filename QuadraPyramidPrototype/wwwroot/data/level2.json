@@ -1,0 +1,20 @@
+{
+  "level": 2,
+  "title": "Quadratic Equations",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Solve x² − 5x + 6 = 0.",
+      "choices": ["x = −2 or x = −3", "x = 2 or x = 3", "x = 1 or x = 6", "x = −1 or x = −6"],
+      "answer": 1,
+      "explanation": "Factor to get (x − 2)(x − 3) = 0. A product is zero when at least one factor is zero, so x = 2 or x = 3."
+    },
+    {
+      "id": 2,
+      "question": "Solve x² = 16.",
+      "choices": ["x = 4 only", "x = −4 only", "x = 8 or x = −8", "x = 4 or x = −4"],
+      "answer": 3,
+      "explanation": "Both 4 × 4 and (−4) × (−4) equal 16. Therefore, x = 4 or x = −4. Remember both the positive and negative roots."
+    }
+  ]
+}

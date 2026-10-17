@@ -1,0 +1,20 @@
+{
+  "level": 3,
+  "title": "Quadratic Inequalities",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Solve x² − 9 < 0.",
+      "choices": ["x < −3 or x > 3", "−3 ≤ x ≤ 3", "−3 < x < 3", "x > 3"],
+      "answer": 2,
+      "explanation": "x² − 9 < 0 means x² < 9. The solutions lie between −3 and 3. Exclude the endpoints because the inequality is strict."
+    },
+    {
+      "id": 2,
+      "question": "Solve x² − 4 ≥ 0.",
+      "choices": ["x ≤ −2 or x ≥ 2", "−2 ≤ x ≤ 2", "x < −2 or x > 2", "x ≥ 2 only"],
+      "answer": 0,
+      "explanation": "x² must be at least 4. This happens when x ≤ −2 or x ≥ 2. Include −2 and 2 because the inequality allows equality."
+    }
+  ]
+}

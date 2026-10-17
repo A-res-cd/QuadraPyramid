@@ -1,0 +1,190 @@
+@page "/"
+@using QuadraPyramidPrototype.Models
+@inject HttpClient Http
+
+<PageTitle>Quadra Pyramid · A mathematics adventure</PageTitle>
+<div class="game-shell">
+    <header class="site-header">
+        <button class="brand" @onclick="ShowMenu" aria-label="Quadra Pyramid main menu"><span class="brand-mark" aria-hidden="true">△</span> QUADRA<span class="brand-light">PYRAMID</span></button>
+        <span class="prototype-tag">CLASSROOM PROTOTYPE</span>
+    </header>
+    <main>
+        @if (currentScreen == "menu")
+        {
+            <section class="hero">
+                <div class="hero-copy">
+                    <p class="eyebrow">― YOUR NEXT ADVENTURE STARTS HERE</p>
+                    <h1>Small steps.<br />Big discoveries.<br /><span>One pyramid.</span></h1>
+                    <p class="subtitle">Learn Mathematics Through Challenges</p>
+                    <p class="intro">Every great explorer starts with a question. Build your skills, solve each challenge, and find your way to the top.</p>
+                    <div class="actions"><button class="primary" @onclick="ShowLevels">Play <span aria-hidden="true">↗</span></button><button class="secondary" @onclick="ShowInstructions">Instructions <span aria-hidden="true">→</span></button></div>
+                    <p class="quiet-note">No timer. No pressure. Just your next discovery.</p>
+                </div>
+                <div class="hero-art" aria-label="A three-tier pyramid representing the three mathematics levels" role="img">
+                    <span class="art-caption">THE PATH TO YOUR POTENTIAL</span><div class="sun" aria-hidden="true"></div>
+                    <div class="pyramid-art" aria-hidden="true"><div class="art-tier top">III<span>DISCOVER</span></div><div class="art-tier middle">II<span>EXPLORE</span></div><div class="art-tier bottom">I<span>BEGIN</span></div></div>
+                    <span class="art-star star-one" aria-hidden="true">✦</span><span class="art-star star-two" aria-hidden="true">✧</span><p class="art-footnote">THREE LEVELS. A WORLD OF POSSIBILITIES.</p>
+                </div>
+            </section>
+            <section class="journey-strip" aria-label="Your learning journey">
+                <div class="strip-heading"><span class="eyebrow">THE LEARNING JOURNEY</span><h2>Build from the ground up.</h2></div>
+                <div class="journey-item"><span class="number">01</span><div><h3>Factoring</h3><p>Lay your foundation</p></div></div>
+                <div class="journey-item"><span class="number">02</span><div><h3>Quadratic Equations</h3><p>Take the next step</p></div></div>
+                <div class="journey-item"><span class="number">03</span><div><h3>Quadratic Inequalities</h3><p>Reach new heights</p></div></div>
+            </section>
+        }
+        else if (currentScreen == "instructions")
+        {
+            <section class="screen narrow">
+                <button class="text-button" @onclick="ShowMenu">← Back to menu</button>
+                <p class="eyebrow">A LITTLE GUIDANCE BEFORE YOU GO</p><h1>Your climb, explained.</h1><p class="intro">Practise Grade 10 mathematics one question at a time. Mistakes are part of learning.</p>
+                <div class="instruction-list">
+                    <div><span class="number">01</span><div><h2>Choose your starting point</h2><p>Begin with Factoring, move to Quadratic Equations, then try Quadratic Inequalities. All three levels are open in this demo.</p></div></div>
+                    <div><span class="number">02</span><div><h2>Make your choice</h2><p>Read the question and select one of four answers. You can answer each question only once.</p></div></div>
+                    <div><span class="number">03</span><div><h2>Learn as you go</h2><p>A correct answer earns 10 points. An incorrect answer earns 0 points, with no penalty. Read the explanation, then select Next Question.</p></div></div>
+                    <div><span class="number">04</span><div><h2>Keep climbing</h2><p>Finish the questions to see your results. Retry for practice or choose Next Level. Complete Level 3 to reach the top! No passing score is required.</p></div></div>
+                </div>
+                <button class="primary" @onclick="ShowLevels">Let's explore <span aria-hidden="true">→</span></button>
+            </section>
+        }
+        else if (currentScreen == "levels")
+        {
+            <section class="screen">
+                <button class="text-button" @onclick="ShowMenu">← Back to menu</button>
+                <div class="centered"><p class="eyebrow">YOUR LEARNING JOURNEY</p><h1>Choose your challenge.</h1><p class="intro">Start at the base. Aim for the summit. Every level is yours to explore.</p></div>
+                <div class="level-pyramid">
+                    <button class="level-tier level-three" @onclick="() => StartLevel(3)" disabled="@isLoading"><span class="level-label">LEVEL 03 · TOP</span><strong>Quadratic Inequalities</strong><span>Find the range. Reach the summit. ↗</span></button>
+                    <button class="level-tier level-two" @onclick="() => StartLevel(2)" disabled="@isLoading"><span class="level-label">LEVEL 02 · MIDDLE</span><strong>Quadratic Equations</strong><span>Solve for the unknown. ↗</span></button>
+                    <button class="level-tier level-one" @onclick="() => StartLevel(1)" disabled="@isLoading"><span class="level-label">LEVEL 01 · BOTTOM</span><strong>Factoring</strong><span>A strong foundation starts here. ↗</span></button>
+                </div>
+                <p class="centered quiet-note">2 questions per level · 10 points per correct answer · All levels unlocked</p>
+            </section>
+        }
+        else if (currentScreen == "question" && levelData != null)
+        {
+            var question = levelData.Questions[questionIndex];
+            <section class="screen question-screen">
+                <button class="text-button" @onclick="ShowLevels">← Back to pyramid</button>
+                <div class="question-heading"><div><p class="eyebrow">LEVEL 0@currentLevel</p><h1>@levelData.Title</h1></div><div class="score-box"><span>SCORE</span><strong>@score <small>pts</small></strong></div></div>
+                <div class="question-meta"><span>Question @(questionIndex + 1) of @levelData.Questions.Length</span><span>One step closer to the top</span></div>
+                <progress value="@(questionIndex + (hasAnswered ? 1 : 0))" max="@levelData.Questions.Length" aria-label="Questions answered"></progress>
+                <div class="question-card">
+                    <p class="eyebrow">TAKE YOUR TIME. YOU'VE GOT THIS.</p><h2 class="math-problem">@question.Question</h2><p class="answer-hint">Select one answer below.</p>
+                    <div class="choices">
+                        @for (int i = 0; i < question.Choices.Length; i++)
+                        {
+                            int choiceIndex = i;
+                            <button class="choice @GetChoiceClass(i)" disabled="@hasAnswered" @onclick="() => CheckAnswer(choiceIndex)"><span class="choice-letter">@((char)('A' + i))</span><span>@question.Choices[i]</span>@if (hasAnswered && i == question.Answer) { <span class="choice-status">✓ Correct</span> } else if (hasAnswered && i == selectedAnswer) { <span class="choice-status">✕ Your answer</span> }</button>
+                        }
+                    </div>
+                    @if (hasAnswered)
+                    {
+                        <div class="feedback @(selectedAnswer == question.Answer ? "feedback-correct" : "feedback-incorrect")" role="status"><strong>@(selectedAnswer == question.Answer ? "Correct! +10 points" : "Incorrect. Keep exploring!")</strong>@if (selectedAnswer != question.Answer) { <p>Correct answer: @question.Choices[question.Answer]</p> }<p>@question.Explanation</p></div>
+                    }
+                    <div class="question-bottom"><span class="quiet-note">@(hasAnswered ? "A little more knowledge for your journey." : "Choose an answer to continue.")</span><button class="primary" disabled="@(!hasAnswered)" @onclick="NextQuestion">@(questionIndex == levelData.Questions.Length - 1 ? "See Results" : "Next Question") <span aria-hidden="true">→</span></button></div>
+                </div>
+            </section>
+        }
+        else if (currentScreen == "results" && levelData != null)
+        {
+            <section class="screen narrow centered result-screen">
+                <div class="result-emblem" aria-hidden="true">△</div><p class="eyebrow">LEVEL 0@currentLevel COMPLETE</p><h1>@(currentLevel == 3 ? "Hello, summit!" : "Another step forward.")</h1>
+                @if (currentLevel == 3) { <p class="intro">Congratulations! You have reached the top of Quadra Pyramid!</p> } else { <p class="intro">You've finished @levelData.Title. Take what you've learned to the next challenge.</p> }
+                <div class="result-stats"><div><span>LEVEL</span><strong class="result-title">@levelData.Title</strong></div><div><span>CORRECT / ANSWERED</span><strong>@correctAnswers / @levelData.Questions.Length</strong></div><div><span>POINTS EARNED</span><strong>@score <small>/ @(levelData.Questions.Length * 10)</small></strong></div></div>
+                <div class="actions centered-actions">@if (currentLevel < 3) { <button class="primary" @onclick="NextLevel" disabled="@isLoading">Next Level <span aria-hidden="true">→</span></button> }<button class="secondary" @onclick="RetryLevel" disabled="@isLoading">Retry Level ↻</button></div>
+                <button class="text-button" @onclick="ShowLevels">← Back to pyramid</button><p class="quiet-note">Practice makes progress. Every attempt is a fresh start.</p>
+            </section>
+        }
+        @if (isLoading) { <p class="loading-message" role="status">Preparing your challenge…</p> }
+        @if (errorMessage != "") { <p class="error-message" role="alert">@errorMessage</p> }
+    </main>
+    <footer><span>MADE FOR CURIOUS MINDS.</span><span>Grade 10 Mathematics · Nueva Ecija High School</span><span>CONCEPT DEMO / 01</span></footer>
+</div>
+
+@code {
+    string currentScreen = "menu";
+    int currentLevel = 1;
+    int questionIndex = 0;
+    int score = 0;
+    int correctAnswers = 0;
+    int selectedAnswer = -1;
+    bool hasAnswered = false;
+    bool isLoading = false;
+    string errorMessage = "";
+    LevelData? levelData;
+
+    void ShowMenu() { currentScreen = "menu"; errorMessage = ""; }
+    void ShowInstructions() { currentScreen = "instructions"; errorMessage = ""; }
+    void ShowLevels() { currentScreen = "levels"; errorMessage = ""; }
+
+    async Task StartLevel(int level)
+    {
+        if (isLoading || level < 1 || level > 3) return;
+        isLoading = true;
+        errorMessage = "";
+        try
+        {
+            // Download JSON from this application's own wwwroot folder.
+            var loadedLevel = await Http.GetFromJsonAsync<LevelData>($"data/level{level}.json");
+            if (loadedLevel == null || loadedLevel.Level != level || string.IsNullOrWhiteSpace(loadedLevel.Title) || loadedLevel.Questions == null || loadedLevel.Questions.Length == 0)
+                throw new InvalidOperationException("The level file is empty or does not match this level.");
+            foreach (var question in loadedLevel.Questions)
+            {
+                if (question == null || string.IsNullOrWhiteSpace(question.Question) || question.Choices == null || question.Choices.Length != 4 || question.Answer < 0 || question.Answer > 3 || string.IsNullOrWhiteSpace(question.Explanation))
+                    throw new InvalidOperationException("Each question needs four choices, an answer from 0 to 3, and an explanation.");
+                foreach (var choice in question.Choices)
+                    if (string.IsNullOrWhiteSpace(choice)) throw new InvalidOperationException("Answer choices cannot be empty.");
+            }
+            levelData = loadedLevel;
+            currentLevel = level;
+            questionIndex = 0;
+            score = 0;
+            correctAnswers = 0;
+            hasAnswered = false;
+            selectedAnswer = -1;
+            currentScreen = "question";
+        }
+        catch (Exception)
+        {
+            errorMessage = "Could not load this challenge. Check the level JSON file and your connection, then try the level again.";
+        }
+        finally { isLoading = false; }
+    }
+
+    void CheckAnswer(int answerIndex)
+    {
+        // Also prevent repeated clicks from adding extra points.
+        if (currentScreen != "question" || levelData == null || hasAnswered || answerIndex < 0 || answerIndex > 3) return;
+        selectedAnswer = answerIndex;
+        hasAnswered = true;
+        if (answerIndex == levelData.Questions[questionIndex].Answer)
+        {
+            score += 10;
+            correctAnswers++;
+        }
+    }
+
+    void NextQuestion()
+    {
+        if (currentScreen != "question" || !hasAnswered || levelData == null) return;
+        if (questionIndex < levelData.Questions.Length - 1)
+        {
+            questionIndex++;
+            hasAnswered = false;
+            selectedAnswer = -1;
+        }
+        else ShowResults();
+    }
+
+    void ShowResults() { currentScreen = "results"; }
+    Task RetryLevel() { return StartLevel(currentLevel); }
+    Task NextLevel() { return StartLevel(currentLevel + 1); }
+
+    string GetChoiceClass(int index)
+    {
+        if (!hasAnswered || levelData == null) return "";
+        if (index == levelData.Questions[questionIndex].Answer) return "choice-correct";
+        if (index == selectedAnswer) return "choice-incorrect";
+        return "";
+    }
+}

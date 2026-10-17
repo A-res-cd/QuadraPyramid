@@ -1,0 +1,20 @@
+{
+  "level": 1,
+  "title": "Factoring",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Factor x² + 5x + 6.",
+      "choices": ["(x + 2)(x + 3)", "(x + 1)(x + 6)", "(x − 2)(x − 3)", "(x + 3)(x + 3)"],
+      "answer": 0,
+      "explanation": "2 and 3 add up to 5 and multiply to 6. Expanding (x + 2)(x + 3) gives x² + 5x + 6."
+    },
+    {
+      "id": 2,
+      "question": "Factor x² − 9.",
+      "choices": ["(x − 9)(x + 1)", "(x − 3)(x − 3)", "(x − 3)(x + 3)", "(x + 3)(x + 3)"],
+      "answer": 2,
+      "explanation": "This is a difference of two squares: x² − 3² = (x − 3)(x + 3). The middle terms cancel when expanded."
+    }
+  ]
+}
