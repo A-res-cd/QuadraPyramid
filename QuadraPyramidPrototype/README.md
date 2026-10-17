@@ -151,7 +151,7 @@ Open one of the JSON files in `wwwroot/data`. Each file has a level number, titl
 
 ## How to change the design
 
-Edit `wwwroot/css/app.css`. The `:root` block at the top defines reusable colors such as `--cream`, `--ink`, and `--gold`. `.primary` and `.secondary` style the main buttons. `.hero` and `.question-card` control the main layouts. `.level-tier` styles the three clickable levels. `.pyramid-art` and `.art-tier` draw the decorative menu pyramid with CSS.
+Edit `wwwroot/css/app.css`. The `:root` block at the top defines reusable colors such as `--cream`, `--ink`, and `--gold`. `.primary` and `.secondary` style the main buttons. `.menu-screen` and `.question-card` control the main layouts. `.level-tier` styles the three clickable levels. `.menu-pyramid` and `.menu-block` draw the three plain menu pyramid blocks with CSS. The design uses a beige background, brown borders, standard fonts, and square raised buttons for a simple classroom-game appearance.
 
 The media queries at the bottom adjust spacing and stack items on narrow screens. There are no image downloads, external fonts, CSS frameworks, or animation libraries. For screen wording, edit the HTML portions of `Home.razor`.
 
